@@ -1,8 +1,12 @@
-use std::{env::current_dir, fs::{read_to_string, write}, error::Error};
 use git2::Repository;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
+use std::{
+    env::current_dir,
+    error::Error,
+    fs::{read_to_string, write},
+};
 
-use crate::schemas::{netkan::NetKANSchema, frozen::FrozenSchema};
+use crate::schemas::{frozen::FrozenSchema, netkan::NetKANSchema};
 
 pub enum RequestKind {
     NETKAN,
@@ -17,10 +21,7 @@ pub struct CacheJSON<T> {
 
 impl<T> CacheJSON<T> {
     pub fn from_data(commit: String, data: T) -> Self {
-        return Self {
-            commit,
-            data,
-        };
+        return Self { commit, data };
     }
 }
 
@@ -98,7 +99,7 @@ pub async fn get_netkans() -> Vec<NetKANSchema> {
 
     let cache_obj = CacheJSON::from_data(commit, items.clone());
     let file_path = current_dir().unwrap().join("netkan.cache.json");
-    
+
     write(file_path, serde_json::to_string(&cache_obj).unwrap()).unwrap();
 
     return items;
@@ -151,7 +152,7 @@ pub async fn get_frozen() -> Vec<FrozenSchema> {
 
     let cache_obj = CacheJSON::from_data(commit, items.clone());
     let file_path = current_dir().unwrap().join("frozen.cache.json");
-    
+
     write(file_path, serde_json::to_string(&cache_obj).unwrap()).unwrap();
 
     return items;

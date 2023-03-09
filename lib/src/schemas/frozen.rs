@@ -1,6 +1,6 @@
-use std::collections::HashMap;
-use serde::{Serialize, Deserialize};
 use super::netkan::{Dependency, InstallConfig};
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct FrozenSchema {
@@ -14,7 +14,7 @@ pub struct FrozenSchema {
 
     #[serde(rename = "$kref")]
     pub kref: Option<String>,
-    
+
     pub resources: Option<HashMap<String, String>>,
     pub license: Option<String>,
     pub tags: Option<Vec<String>>,

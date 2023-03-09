@@ -7,10 +7,10 @@ use serde_either::SingleOrVec;
 pub enum ModKind {
     #[serde(rename = "package")]
     PACKAGE,
-    
+
     #[serde(rename = "metapackage")]
     METAPACKAGE,
-    
+
     #[serde(rename = "dlc")]
     DLC,
 }
@@ -42,7 +42,7 @@ pub struct NetKANSchema {
     pub author: Option<SingleOrVec<String>>,
     pub download: Option<String>,
     pub license: Option<SingleOrVec<String>>,
-    
+
     #[serde(rename = "$kref")]
     pub kref: Option<String>,
 

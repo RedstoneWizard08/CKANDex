@@ -1,7 +1,10 @@
-use axum::{Router, Server, routing::get, response::IntoResponse, debug_handler, extract::Query};
+use axum::{debug_handler, extract::Query, response::IntoResponse, routing::get, Router, Server};
 use serde::{Deserialize, Serialize};
 
-use crate::{all::{get_netkans, get_frozen}, schemas::{frozen::FrozenSchema, netkan::NetKANSchema}};
+use crate::{
+    all::{get_frozen, get_netkans},
+    schemas::{frozen::FrozenSchema, netkan::NetKANSchema},
+};
 
 pub async fn index() -> &'static str {
     return "Hello, world!";
@@ -35,7 +38,7 @@ impl Default for QueryResponse {
 pub async fn query(Query(params): Query<QueryParameters>) -> impl IntoResponse {
     let mut live = true;
     let mut frozen = false;
-    
+
     if let Some(p_frozen) = params.frozen {
         frozen = p_frozen;
     }
@@ -53,16 +56,14 @@ pub async fn query(Query(params): Query<QueryParameters>) -> impl IntoResponse {
     if frozen {
         resp.frozen = Some(get_frozen().await);
     }
-    
+
     return serde_json::to_string(&resp).unwrap();
 }
 
 pub async fn run_server() {
     let router = Router::new();
 
-    let router = router
-    .route("/", get(index))
-    .route("/query", get(query));
+    let router = router.route("/", get(index)).route("/query", get(query));
 
     let app = Server::bind(&"0.0.0.0:4000".parse().unwrap());
     let server = app.serve(router.into_make_service());

@@ -14,12 +14,7 @@ pub async fn update_repo() {
 
     let commit = repo.revparse_single("HEAD").unwrap();
 
-    repo.reset(
-        &commit,
-        ResetType::Hard,
-        None,
-    )
-    .unwrap();
+    repo.reset(&commit, ResetType::Hard, None).unwrap();
 
     repo.find_remote("origin")
         .unwrap()
