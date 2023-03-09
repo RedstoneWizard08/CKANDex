@@ -1,0 +1,16 @@
+[package]
+name = "ckandex"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+authors = ["RedstoneWizard08"]
+description = "An indexer and API for CKAN, written in Rust."
+
+[dependencies]
+axum = { version = "0.6.10", features = ["macros", "ws", "http2"] }
+git2 = "0.16.1"
+serde = { version = "1.0.154", features = ["derive"] }
+serde_either = "0.2.1"
+serde_json = "1.0.94"
+serde_yaml = "0.9.19"
+tokio = { version = "1.26.0", features = ["full"] }
