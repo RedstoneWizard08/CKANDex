@@ -3,7 +3,7 @@ use async_trait::async_trait;
 
 use super::common::{ModResolver, ModSourceLists};
 
-#[derive(Debug, Clone)]
+#[derive(Default, Debug, Clone)]
 pub struct GitLabResolver {
     pub mods: ModSourceLists,
 }
@@ -14,7 +14,7 @@ impl ModResolver for GitLabResolver {
         return kref.starts_with("#/ckan/gitlab/");
     }
 
-    async fn resolve_url(&self, kref: String) -> Option<String> {
+    async fn resolve_url(&self, kref: String, _: String) -> Option<String> {
         let kref_url = kref.replace("#/ckan/gitlab/", "");
         let mut kref_spl = kref_url.split("/");
 

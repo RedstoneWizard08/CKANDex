@@ -1,9 +1,10 @@
 use crate::schemas::github::release::GitHubReleaseSchema;
 use async_trait::async_trait;
+use reqwest::header;
 
 use super::common::{ModResolver, ModSourceLists};
 
-#[derive(Debug, Clone)]
+#[derive(Default, Debug, Clone)]
 pub struct GitHubResolver {
     pub mods: ModSourceLists,
 }
@@ -14,10 +15,20 @@ impl ModResolver for GitHubResolver {
         return kref.starts_with("#/ckan/github/");
     }
 
-    async fn resolve_url(&self, kref: String) -> Option<String> {
+    async fn resolve_url(&self, kref: String, token: String) -> Option<String> {
+        let mut headers = header::HeaderMap::new();
+
+        headers.insert("Authorization", header::HeaderValue::from_str(format!("Bearer {}", token).as_str()).unwrap());
+        headers.insert("User-Agent", header::HeaderValue::from_str("CKANDex Resolver").unwrap());
+
+        let client = reqwest::Client::builder()
+            .default_headers(headers)
+            .build()
+            .unwrap();
+
         let kref_url = kref.replace("#/ckan/github/", "");
         let url = format!("https://api.github.com/repos/{}/releases/latest", kref_url);
-        let resp = reqwest::get(url).await.unwrap();
+        let resp = client.get(url).send().await.unwrap();
 
         let content = resp.text().await.unwrap();
         let data = serde_json::from_str::<GitHubReleaseSchema>(&content);

@@ -1,36 +1,19 @@
 use async_trait::async_trait;
-
-use crate::NetKANSchema;
-
 use super::common::{ModResolver, ModSourceLists};
 
 #[derive(Default, Debug, Clone)]
-pub struct NetKANResolver {
+pub struct DirectResolver {
     pub mods: ModSourceLists,
 }
 
 #[async_trait]
-impl ModResolver for NetKANResolver {
+impl ModResolver for DirectResolver {
     fn should_resolve(&self, kref: String) -> bool {
-        return kref.starts_with("#/ckan/netkan/");
+        return kref.starts_with("#/ckan/http/");
     }
 
     async fn resolve_url(&self, kref: String, _: String) -> Option<String> {
-        let url = kref.replace("#/ckan/netkan/", "");
-        let resp = reqwest::get(url).await.unwrap();
-
-        let content = resp.text().await.unwrap();
-        let data: NetKANSchema;
-
-        if let Ok(json) = serde_json::from_str(&content) {
-            data = json;
-        } else if let Ok(yaml) = serde_yaml::from_str(&content) {
-            data = yaml;
-        } else {
-            return None;
-        }
-
-        return data.kref;
+        return Some(kref.replace("#/ckan/http/", ""));
     }
 
     fn merge_results(&self, other: &mut dyn ModResolver) {

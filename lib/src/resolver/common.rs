@@ -5,13 +5,13 @@ use async_trait::async_trait;
 #[async_trait]
 pub trait ModResolver {
     fn should_resolve(&self, kref: String) -> bool;
-    async fn resolve_url(&self, kref: String) -> Option<String>;
+    async fn resolve_url(&self, kref: String, _: String) -> Option<String>;
 
     fn merge_results(&self, other: &mut dyn ModResolver);
     fn accept_mods(&mut self, mods: ModSourceLists);
 }
 
-#[derive(Debug, Clone)]
+#[derive(Default, Debug, Clone)]
 pub struct ModSourceLists {
     pub avc: HashMap<String, String>,
     pub github: HashMap<String, String>,

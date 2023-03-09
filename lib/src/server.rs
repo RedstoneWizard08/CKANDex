@@ -1,9 +1,9 @@
-use axum::{debug_handler, extract::Query, response::IntoResponse, routing::get, Router, Server};
+use axum::{debug_handler, extract::{Query, Path}, routing::get, Router, Server};
 use serde::{Deserialize, Serialize};
 
 use crate::{
     all::{get_frozen, get_netkans},
-    schemas::{frozen::FrozenSchema, netkan::NetKANSchema},
+    schemas::{frozen::FrozenSchema, netkan::NetKANSchema}, resolver::{id::resolve_mod_by_id, kref::resolve_kref},
 };
 
 pub async fn index() -> &'static str {
@@ -14,6 +14,11 @@ pub async fn index() -> &'static str {
 pub struct QueryParameters {
     pub frozen: Option<bool>,
     pub live: Option<bool>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct TokenQueryParameters {
+    pub token: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -35,7 +40,7 @@ impl Default for QueryResponse {
 }
 
 #[debug_handler]
-pub async fn query(Query(params): Query<QueryParameters>) -> impl IntoResponse {
+pub async fn query(Query(params): Query<QueryParameters>) -> String {
     let mut live = true;
     let mut frozen = false;
 
@@ -60,10 +65,20 @@ pub async fn query(Query(params): Query<QueryParameters>) -> impl IntoResponse {
     return serde_json::to_string(&resp).unwrap();
 }
 
+#[debug_handler]
+pub async fn get_kref(Path(mod_id): Path<String>, Query(params): Query<TokenQueryParameters>) -> String {
+    let kref = resolve_mod_by_id(mod_id).await.unwrap();
+
+    return resolve_kref(kref, params.token).await.unwrap();
+}
+
 pub async fn run_server() {
     let router = Router::new();
 
-    let router = router.route("/", get(index)).route("/query", get(query));
+    let router = router
+        .route("/", get(index))
+        .route("/query", get(query))
+        .route("/kref/:mod_id", get(get_kref));
 
     let app = Server::bind(&"0.0.0.0:4000".parse().unwrap());
     let server = app.serve(router.into_make_service());

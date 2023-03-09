@@ -1,2 +1,2 @@
 [workspace]
-members = ["lib", "example"]
+members = ["lib", "sample"]

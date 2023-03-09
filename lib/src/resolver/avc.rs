@@ -1,8 +1,9 @@
 use super::common::{ModResolver, ModSourceLists};
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
+use fancy_regex::Regex;
 
-#[derive(Debug, Clone)]
+#[derive(Default, Debug, Clone)]
 pub struct AVCResolver {
     pub mods: ModSourceLists,
 }
@@ -61,12 +62,14 @@ impl ModResolver for AVCResolver {
         return kref.starts_with("#/ckan/ksp-avc/");
     }
 
-    async fn resolve_url(&self, kref: String) -> Option<String> {
+    async fn resolve_url(&self, kref: String, _: String) -> Option<String> {
         let url = kref.replace("#/ckan/ksp-avc/", "");
         let resp = reqwest::get(url).await.unwrap();
 
+        let regex = Regex::new(r#"\,(?!\s*?[\{\[\"\'\w])"#).unwrap();
         let content = resp.text().await.unwrap();
-        let data = serde_json::from_str::<AVCSchema>(&content);
+        let content_json = regex.replace(&content, "");
+        let data = serde_json::from_str::<AVCSchema>(&content_json);
 
         if let Ok(data) = data {
             return Some(data.download);

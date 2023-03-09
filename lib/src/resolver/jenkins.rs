@@ -3,7 +3,7 @@ use jenkins_api::JenkinsBuilder;
 
 use super::common::{ModResolver, ModSourceLists};
 
-#[derive(Debug, Clone)]
+#[derive(Default, Debug, Clone)]
 pub struct JenkinsResolver {
     pub mods: ModSourceLists,
 }
@@ -14,7 +14,7 @@ impl ModResolver for JenkinsResolver {
         return kref.starts_with("#/ckan/jenkins/");
     }
 
-    async fn resolve_url(&self, kref: String) -> Option<String> {
+    async fn resolve_url(&self, kref: String, _: String) -> Option<String> {
         let kref_url = kref.replace("#/ckan/jenkins/", "");
         let mut split_url = kref_url.split("/job/");
 
