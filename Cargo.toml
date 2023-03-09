@@ -1,10 +1,19 @@
 [package]
 name = "ckandex"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
 license = "MIT"
 authors = ["RedstoneWizard08"]
 description = "An indexer and API for CKAN, written in Rust."
+
+[lib]
+name = "ckandex"
+path = "src/lib.rs"
+crate-type = ["cdylib"]
+
+[[bin]]
+name = "ckandex"
+path = "src/main.rs"
 
 [dependencies]
 axum = { version = "0.6.10", features = ["macros", "ws", "http2"] }
