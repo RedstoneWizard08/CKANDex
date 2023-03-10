@@ -1,6 +1,6 @@
 [package]
 name = "ckandex"
-version = "0.4.1"
+version = "0.4.2"
 edition = "2021"
 license = "MIT"
 authors = ["RedstoneWizard08"]
@@ -24,4 +24,3 @@ serde_yaml = "0.9.19"
 
 [package.metadata.docs.rs]
 all-features = true
-targets = ["x86_64-apple-darwin", "x86_64-pc-windows-msvc"]
