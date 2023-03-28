@@ -1,4 +1,4 @@
-use crate::schemas::github::release::GitHubReleaseSchema;
+use crate::{schemas::github::release::GitHubReleaseSchema, CKANError};
 use async_trait::async_trait;
 use reqwest::header;
 
@@ -15,11 +15,17 @@ impl ModResolver for GitHubResolver {
         return kref.starts_with("#/ckan/github/");
     }
 
-    async fn resolve_url(&self, kref: String, token: String) -> Option<String> {
+    async fn resolve_url(&self, kref: String, token: String) -> Result<String, CKANError> {
         let mut headers = header::HeaderMap::new();
 
-        headers.insert("Authorization", header::HeaderValue::from_str(format!("Bearer {}", token).as_str()).unwrap());
-        headers.insert("User-Agent", header::HeaderValue::from_str("CKANDex Resolver").unwrap());
+        headers.insert(
+            "Authorization",
+            header::HeaderValue::from_str(format!("Bearer {}", token).as_str()).unwrap(),
+        );
+        headers.insert(
+            "User-Agent",
+            header::HeaderValue::from_str("CKANDex Resolver").unwrap(),
+        );
 
         let client = reqwest::Client::builder()
             .default_headers(headers)
@@ -38,11 +44,11 @@ impl ModResolver for GitHubResolver {
             let asset = assets.iter().find(|v| v.name.ends_with(".zip"));
 
             if let Some(asset) = asset {
-                return Some(asset.clone().browser_download_url);
+                return Ok(asset.clone().browser_download_url);
             }
         }
 
-        return None;
+        return Err(CKANError::NoAsset);
     }
 
     fn merge_results(&self, other: &mut dyn ModResolver) {
@@ -52,6 +58,10 @@ impl ModResolver for GitHubResolver {
     fn accept_mods(&mut self, mods: ModSourceLists) {
         mods.avc.iter().for_each(|(k, v)| {
             self.mods.avc.insert(k.clone(), v.clone()).unwrap();
+        });
+
+        mods.spacedock.iter().for_each(|(k, v)| {
+            self.mods.spacedock.insert(k.clone(), v.clone()).unwrap();
         });
 
         mods.github.iter().for_each(|(k, v)| {

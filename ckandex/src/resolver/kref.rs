@@ -1,13 +1,17 @@
+use crate::CKANError;
+use crate::spacedock::SpaceDockResolver;
+
 use super::avc::AVCResolver;
+use super::common::ModResolver;
 use super::direct::DirectResolver;
 use super::github::GitHubResolver;
 use super::gitlab::GitLabResolver;
 use super::jenkins::JenkinsResolver;
 use super::netkan::NetKANResolver;
-use super::common::ModResolver;
 
-async fn end_resolve_kref(kref: String, token: String) -> Option<String> {
+async fn end_resolve_kref(kref: String, token: String) -> Result<String, CKANError> {
     let avc = AVCResolver::default();
+    let spacedock = SpaceDockResolver::default();
     let github = GitHubResolver::default();
     let gitlab = GitLabResolver::default();
     let jenkins = JenkinsResolver::default();
@@ -15,6 +19,10 @@ async fn end_resolve_kref(kref: String, token: String) -> Option<String> {
 
     if avc.should_resolve(kref.clone()) {
         return avc.resolve_url(kref, token).await;
+    }
+
+    if spacedock.should_resolve(kref.clone()) {
+        return spacedock.resolve_url(kref, token).await;
     }
 
     if github.should_resolve(kref.clone()) {
@@ -33,10 +41,10 @@ async fn end_resolve_kref(kref: String, token: String) -> Option<String> {
         return direct.resolve_url(kref, token).await;
     }
 
-    return None;
+    return Err(CKANError::UnresolvableKref);
 }
 
-pub async fn resolve_kref(kref: String, token: String) -> Option<String> {
+pub async fn resolve_kref(kref: String, token: String) -> Result<String, CKANError> {
     let netkan = NetKANResolver::default();
 
     if netkan.should_resolve(kref.clone()) {

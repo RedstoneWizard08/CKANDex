@@ -1,7 +1,9 @@
+use crate::CKANError;
+
 use super::common::{ModResolver, ModSourceLists};
 use async_trait::async_trait;
-use serde::{Deserialize, Serialize};
 use fancy_regex::Regex;
+use serde::{Deserialize, Serialize};
 
 #[derive(Default, Debug, Clone)]
 pub struct AVCResolver {
@@ -62,7 +64,7 @@ impl ModResolver for AVCResolver {
         return kref.starts_with("#/ckan/ksp-avc/");
     }
 
-    async fn resolve_url(&self, kref: String, _: String) -> Option<String> {
+    async fn resolve_url(&self, kref: String, _: String) -> Result<String, CKANError> {
         let url = kref.replace("#/ckan/ksp-avc/", "");
         let resp = reqwest::get(url).await.unwrap();
 
@@ -72,10 +74,10 @@ impl ModResolver for AVCResolver {
         let data = serde_json::from_str::<AVCSchema>(&content_json);
 
         if let Ok(data) = data {
-            return Some(data.download);
+            return Ok(data.download);
         }
 
-        return None;
+        return Err(CKANError::UnresolvableKref);
     }
 
     fn merge_results(&self, other: &mut dyn ModResolver) {
@@ -85,6 +87,10 @@ impl ModResolver for AVCResolver {
     fn accept_mods(&mut self, mods: ModSourceLists) {
         mods.avc.iter().for_each(|(k, v)| {
             self.mods.avc.insert(k.clone(), v.clone()).unwrap();
+        });
+
+        mods.spacedock.iter().for_each(|(k, v)| {
+            self.mods.spacedock.insert(k.clone(), v.clone()).unwrap();
         });
 
         mods.github.iter().for_each(|(k, v)| {

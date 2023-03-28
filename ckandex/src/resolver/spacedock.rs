@@ -1,36 +1,43 @@
-use async_trait::async_trait;
-
-use crate::NetKANSchema;
+use crate::CKANError;
 
 use super::common::{ModResolver, ModSourceLists};
+use async_trait::async_trait;
+use serde::{Deserialize, Serialize};
 
 #[derive(Default, Debug, Clone)]
-pub struct NetKANResolver {
+pub struct SpaceDockResolver {
     pub mods: ModSourceLists,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SpaceDockSchema {
+    pub friendly_version: String,
+    pub game_version: String,
+    pub id: u64,
+    pub created: String,
+    pub download_path: String,
+    pub changelog: String,
+    pub downloads: u64,
+}
+
 #[async_trait]
-impl ModResolver for NetKANResolver {
+impl ModResolver for SpaceDockResolver {
     fn should_resolve(&self, kref: String) -> bool {
-        return kref.starts_with("#/ckan/netkan/");
+        return kref.starts_with("#/ckan/spacedock/");
     }
 
-    async fn resolve_url(&self, kref: String, _: String) -> Option<String> {
-        let url = kref.replace("#/ckan/netkan/", "");
-        let resp = reqwest::get(url).await.unwrap();
+    async fn resolve_url(&self, kref: String, _: String) -> Result<String, CKANError> {
+        let url = kref.replace("#/ckan/spacedock/", "https://spacedock.info/api/mod/");
+        let resp = reqwest::get(url + "/latest").await.unwrap();
 
         let content = resp.text().await.unwrap();
-        let data: NetKANSchema;
+        let data = serde_json::from_str::<SpaceDockSchema>(&content);
 
-        if let Ok(json) = serde_json::from_str(&content) {
-            data = json;
-        } else if let Ok(yaml) = serde_yaml::from_str(&content) {
-            data = yaml;
-        } else {
-            return None;
+        if let Ok(data) = data {
+            return Ok("https://spacedock.info".to_string() + &data.download_path);
         }
 
-        return data.kref;
+        return Err(CKANError::UnresolvableKref);
     }
 
     fn merge_results(&self, other: &mut dyn ModResolver) {
@@ -40,6 +47,10 @@ impl ModResolver for NetKANResolver {
     fn accept_mods(&mut self, mods: ModSourceLists) {
         mods.avc.iter().for_each(|(k, v)| {
             self.mods.avc.insert(k.clone(), v.clone()).unwrap();
+        });
+
+        mods.spacedock.iter().for_each(|(k, v)| {
+            self.mods.spacedock.insert(k.clone(), v.clone()).unwrap();
         });
 
         mods.github.iter().for_each(|(k, v)| {

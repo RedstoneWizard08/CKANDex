@@ -1,6 +1,8 @@
 use async_trait::async_trait;
 use jenkins_api::JenkinsBuilder;
 
+use crate::CKANError;
+
 use super::common::{ModResolver, ModSourceLists};
 
 #[derive(Default, Debug, Clone)]
@@ -14,22 +16,21 @@ impl ModResolver for JenkinsResolver {
         return kref.starts_with("#/ckan/jenkins/");
     }
 
-    async fn resolve_url(&self, kref: String, _: String) -> Option<String> {
+    async fn resolve_url(&self, kref: String, _: String) -> Result<String, CKANError> {
         let kref_url = kref.replace("#/ckan/jenkins/", "");
         let mut split_url = kref_url.split("/job/");
 
         let jenkins_url = split_url.next().unwrap();
         let mut job_name = split_url.next().unwrap().to_string();
 
-        if job_name.ends_with("/") {
+        if job_name.ends_with('/') {
             let mut chars = job_name.chars();
 
             chars.next_back();
 
             let collected = chars.collect::<String>();
-            let c_str = collected.clone();
 
-            job_name = c_str;
+            job_name = collected;
         }
 
         let jenkins = JenkinsBuilder::new(jenkins_url).build().unwrap();
@@ -53,10 +54,10 @@ impl ModResolver for JenkinsResolver {
                 kref_url, af.relative_path
             );
 
-            return Some(af_url);
+            return Ok(af_url);
         }
 
-        return None;
+        return Err(CKANError::UnknownArtifact);
     }
 
     fn merge_results(&self, other: &mut dyn ModResolver) {
@@ -66,6 +67,10 @@ impl ModResolver for JenkinsResolver {
     fn accept_mods(&mut self, mods: ModSourceLists) {
         mods.avc.iter().for_each(|(k, v)| {
             self.mods.avc.insert(k.clone(), v.clone()).unwrap();
+        });
+
+        mods.spacedock.iter().for_each(|(k, v)| {
+            self.mods.spacedock.insert(k.clone(), v.clone()).unwrap();
         });
 
         mods.github.iter().for_each(|(k, v)| {

@@ -1,9 +1,9 @@
-pub mod id;
 pub mod avc;
 pub mod common;
+pub mod direct;
 pub mod github;
 pub mod gitlab;
 pub mod jenkins;
-pub mod netkan;
 pub mod kref;
-pub mod direct;
+pub mod netkan;
+pub mod spacedock;

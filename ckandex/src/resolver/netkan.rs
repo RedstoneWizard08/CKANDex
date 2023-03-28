@@ -1,52 +1,40 @@
-use crate::schemas::gitlab::{project::GitLabProject, release::GitLabRelease};
 use async_trait::async_trait;
+
+use crate::{CKANError, NetKANSchema};
 
 use super::common::{ModResolver, ModSourceLists};
 
 #[derive(Default, Debug, Clone)]
-pub struct GitLabResolver {
+pub struct NetKANResolver {
     pub mods: ModSourceLists,
 }
 
 #[async_trait]
-impl ModResolver for GitLabResolver {
+impl ModResolver for NetKANResolver {
     fn should_resolve(&self, kref: String) -> bool {
-        return kref.starts_with("#/ckan/gitlab/");
+        return kref.starts_with("#/ckan/netkan/");
     }
 
-    async fn resolve_url(&self, kref: String, _: String) -> Option<String> {
-        let kref_url = kref.replace("#/ckan/gitlab/", "");
-        let mut kref_spl = kref_url.split("/");
-
-        let username = kref_spl.next().unwrap();
-        let repo = kref_spl.next().unwrap();
-
-        let url = format!("https://gitlab.com/api/v4/users/{}/projects", username);
+    async fn resolve_url(&self, kref: String, _: String) -> Result<String, CKANError> {
+        let url = kref.replace("#/ckan/netkan/", "");
         let resp = reqwest::get(url).await.unwrap();
 
         let content = resp.text().await.unwrap();
-        let data = serde_json::from_str::<Vec<GitLabProject>>(&content).unwrap();
-        let project = data.iter().find(|p| p.path == repo).unwrap();
+        let data: NetKANSchema;
 
-        let url = format!("https://gitlab.com/api/v4/projects/{}/releases", project.id);
-        let resp = reqwest::get(url).await.unwrap();
-
-        let content = resp.text().await.unwrap();
-        let data = serde_json::from_str::<Vec<GitLabRelease>>(&content).unwrap();
-
-        let asset = data
-            .get(0)
-            .unwrap()
-            .assets
-            .sources
-            .iter()
-            .find(|s| s.format == "zip".to_string());
-
-        if let Some(asset) = asset {
-            return Some(asset.url.clone());
+        if let Ok(json) = serde_json::from_str(&content) {
+            data = json;
+        } else if let Ok(yaml) = serde_yaml::from_str(&content) {
+            data = yaml;
+        } else {
+            return Err(CKANError::UnknownDescriptorFormat);
         }
 
-        return None;
+        if let Some(kref) = data.kref {
+            return Ok(kref);
+        }
+
+        return Err(CKANError::UnresolvableKref);
     }
 
     fn merge_results(&self, other: &mut dyn ModResolver) {
@@ -56,6 +44,10 @@ impl ModResolver for GitLabResolver {
     fn accept_mods(&mut self, mods: ModSourceLists) {
         mods.avc.iter().for_each(|(k, v)| {
             self.mods.avc.insert(k.clone(), v.clone()).unwrap();
+        });
+
+        mods.spacedock.iter().for_each(|(k, v)| {
+            self.mods.spacedock.insert(k.clone(), v.clone()).unwrap();
         });
 
         mods.github.iter().for_each(|(k, v)| {

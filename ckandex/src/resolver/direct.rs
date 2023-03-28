@@ -1,4 +1,6 @@
+use crate::CKANError;
 use async_trait::async_trait;
+
 use super::common::{ModResolver, ModSourceLists};
 
 #[derive(Default, Debug, Clone)]
@@ -12,8 +14,8 @@ impl ModResolver for DirectResolver {
         return kref.starts_with("#/ckan/http/");
     }
 
-    async fn resolve_url(&self, kref: String, _: String) -> Option<String> {
-        return Some(kref.replace("#/ckan/http/", ""));
+    async fn resolve_url(&self, kref: String, _: String) -> Result<String, CKANError> {
+        return Ok(kref.replace("#/ckan/http/", ""));
     }
 
     fn merge_results(&self, other: &mut dyn ModResolver) {
@@ -23,6 +25,10 @@ impl ModResolver for DirectResolver {
     fn accept_mods(&mut self, mods: ModSourceLists) {
         mods.avc.iter().for_each(|(k, v)| {
             self.mods.avc.insert(k.clone(), v.clone()).unwrap();
+        });
+
+        mods.spacedock.iter().for_each(|(k, v)| {
+            self.mods.spacedock.insert(k.clone(), v.clone()).unwrap();
         });
 
         mods.github.iter().for_each(|(k, v)| {

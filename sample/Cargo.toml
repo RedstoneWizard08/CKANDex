@@ -4,5 +4,6 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-ckandex = { path = "../lib", features = ["server"] }
+ckandex = { path = "../ckandex", features = ["server"] }
+dotenv = "0.15.0"
 tokio = { version = "1.26.0", features = ["full"] }
