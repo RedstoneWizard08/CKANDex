@@ -24,19 +24,16 @@ This library was created for the [Wormhole](https://github.com/RedstoneWizard08/
 Here's an example of CKANDex in action:
 
 ```rs
+use ckandex::{refresh_data, run_server, KSP};
+use dotenv::dotenv;
 use tokio::main;
-use ckandex::CKANDex;
 
 #[main]
 pub async fn main() {
-    let ckan = CKANDex::new().update().await;
-    
-    let res = ckan.filter_mods("wasd");
-    let mut item = ckan.find_mod(res.nth(0).unwrap().name.unwrap());
-    
-    item.resolve_download().await;
-    
-    println!("Found mod: {:?}", item);
+    dotenv().ok();
+
+    refresh_data(KSP::KSP2, "netkan-ksp2").await;
+    run_server("netkan-ksp2".to_string()).await;
 }
 ```
 
