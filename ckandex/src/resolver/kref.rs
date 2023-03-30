@@ -1,5 +1,5 @@
-use crate::CKANError;
 use crate::spacedock::SpaceDockResolver;
+use crate::CKANError;
 
 use super::avc::AVCResolver;
 use super::common::ModResolver;

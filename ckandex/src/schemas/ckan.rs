@@ -19,6 +19,9 @@ pub struct Mod {
     token: Option<String>,
 }
 
+unsafe impl Send for Mod {}
+unsafe impl Sync for Mod {}
+
 impl Mod {
     pub fn from_netkan(netkan: NetKANSchema) -> Self {
         return Self {

@@ -16,7 +16,7 @@ pub struct SpaceDockSchema {
     pub id: u64,
     pub created: String,
     pub download_path: String,
-    pub changelog: String,
+    pub changelog: Option<String>,
     pub downloads: u64,
 }
 
@@ -27,8 +27,8 @@ impl ModResolver for SpaceDockResolver {
     }
 
     async fn resolve_url(&self, kref: String, _: String) -> Result<String, CKANError> {
-        let url = kref.replace("#/ckan/spacedock/", "https://spacedock.info/api/mod/");
-        let resp = reqwest::get(url + "/latest").await.unwrap();
+        let url = kref.replace("#/ckan/spacedock/", "https://spacedock.info/api/mod/") + "/latest";
+        let resp = reqwest::get(url).await.unwrap();
 
         let content = resp.text().await.unwrap();
         let data = serde_json::from_str::<SpaceDockSchema>(&content);

@@ -100,8 +100,8 @@ pub async fn get_kref_env(
     return resp;
 }
 
-pub async fn run_server() {
-    let mut cache = CacheClient::new();
+pub async fn run_server(dir: String) {
+    let mut cache = CacheClient::new(dir);
 
     cache.update_cache().await.unwrap();
 
@@ -112,8 +112,8 @@ pub async fn run_server() {
     if env::var("GITHUB_TOKEN").is_ok() {
         let router = router
             .route("/", get(index))
-            .route("/query", get(query))
-            .route("/kref/:mod_id", get(get_kref_env))
+            .route("/mods", get(query))
+            .route("/download/:mod_id", get(get_kref_env))
             .with_state(cache);
 
         let server = app.serve(router.into_make_service());
@@ -124,8 +124,8 @@ pub async fn run_server() {
     } else {
         let router = router
             .route("/", get(index))
-            .route("/query", get(query))
-            .route("/kref/:mod_id", get(get_kref))
+            .route("/mods", get(query))
+            .route("/download/:mod_id", get(get_kref))
             .with_state(cache);
 
         let server = app.serve(router.into_make_service());

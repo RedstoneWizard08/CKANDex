@@ -1,2 +1,2 @@
 [workspace]
-members = ["ckandex", "sample"]
+members = ["ckandex", "examples/cli", "examples/rest-api"]

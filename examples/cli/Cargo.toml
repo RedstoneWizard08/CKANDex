@@ -1,0 +1,9 @@
+[package]
+name = "cli"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+ckandex = { path = "../../ckandex", features = ["server"] }
+dotenv = "0.15.0"
+tokio = { version = "1", features = ["full"] }

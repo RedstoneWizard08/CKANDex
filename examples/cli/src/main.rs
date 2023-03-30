@@ -1,4 +1,4 @@
-use ckandex::{run_server, clone_repo};
+use ckandex::{refresh_data, KSP};
 use dotenv::dotenv;
 use tokio::main;
 
@@ -6,6 +6,5 @@ use tokio::main;
 pub async fn main() {
     dotenv().ok();
 
-    clone_repo().await;
-    run_server().await;
+    refresh_data(KSP::KSP2, "netkan-ksp2").await;
 }

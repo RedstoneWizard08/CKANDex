@@ -1,11 +1,25 @@
 use git2::{Repository, ResetType};
-use std::env::current_dir;
+use serde::{Deserialize, Serialize};
+use std::{path::PathBuf, str::FromStr};
 
-pub static REPO: &str = "https://github.com/KSP-CKAN/NetKAN";
-pub static NETKAN_BRANCH: &str = "master";
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+pub struct RepoInfo {
+    pub url: &'static str,
+    pub branch: &'static str,
+}
 
-pub async fn update_repo() {
-    let dir = current_dir().unwrap().join("netkan");
+pub static KSP1_REPO_INFO: RepoInfo = RepoInfo {
+    url: "https://github.com/KSP-CKAN/NetKAN",
+    branch: "master",
+};
+
+pub static KSP2_REPO_INFO: RepoInfo = RepoInfo {
+    url: "https://github.com/KSP-CKAN/KSP2-NetKAN",
+    branch: "main",
+};
+
+pub async fn update_repo(repo_info: RepoInfo, repo_dir: &str) {
+    let dir = PathBuf::from_str(repo_dir).unwrap();
 
     let repo = match Repository::open(dir) {
         Ok(repo) => repo,
@@ -18,7 +32,7 @@ pub async fn update_repo() {
 
     repo.find_remote("origin")
         .unwrap()
-        .fetch(&[NETKAN_BRANCH], None, None)
+        .fetch(&[repo_info.branch], None, None)
         .unwrap();
 
     let fetch_head = repo.find_reference("FETCH_HEAD").unwrap();
@@ -28,7 +42,7 @@ pub async fn update_repo() {
     if analysis.0.is_up_to_date() {
         return;
     } else if analysis.0.is_fast_forward() {
-        let refname = format!("refs/heads/{}", NETKAN_BRANCH);
+        let refname = format!("refs/heads/{}", repo_info.branch);
         let mut reference = repo.find_reference(&refname).unwrap();
 
         reference
@@ -43,16 +57,16 @@ pub async fn update_repo() {
     }
 }
 
-pub async fn clone_repo() {
-    let dir = current_dir().unwrap().join("netkan");
+pub async fn clone_repo(repo_info: RepoInfo, repo_dir: &str) {
+    let dir = PathBuf::from_str(repo_dir).unwrap();
 
     if dir.clone().exists() {
-        update_repo().await;
+        update_repo(repo_info, repo_dir).await;
 
         return;
     }
 
-    match Repository::clone_recurse(REPO, dir) {
+    match Repository::clone_recurse(repo_info.url, dir) {
         Ok(repo) => repo,
         Err(e) => panic!("Failed to clone: {}", e),
     };

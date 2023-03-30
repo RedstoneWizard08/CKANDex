@@ -2,8 +2,9 @@ use git2::Repository;
 use serde::{Deserialize, Serialize};
 
 use std::{
-    env::current_dir,
     fs::{read_to_string, write},
+    path::PathBuf,
+    str::FromStr,
 };
 
 use crate::{
@@ -33,6 +34,7 @@ impl<T> CacheJSON<T> {
 pub struct CacheClient {
     pub netkans: Option<Vec<NetKANSchema>>,
     pub frozen: Option<Vec<FrozenSchema>>,
+    pub dir: String,
 }
 
 impl Default for CacheClient {
@@ -40,24 +42,26 @@ impl Default for CacheClient {
         return Self {
             netkans: None,
             frozen: None,
+            dir: "".to_string(),
         };
     }
 }
 
 impl CacheClient {
-    pub fn new() -> Self {
+    pub fn new(dir: String) -> Self {
         return Self {
             netkans: None,
             frozen: None,
+            dir,
         };
     }
 
     pub fn is_netkan_cache_valid(&self) -> bool {
-        let dir = current_dir().unwrap().join("netkan");
-        let repo = Repository::open(dir).unwrap();
+        let dir = PathBuf::from_str(&self.dir).unwrap();
+        let repo = Repository::open(dir.clone()).unwrap();
         let commit = repo.revparse_single("HEAD").unwrap().id().to_string();
 
-        let file_path = current_dir().unwrap().join("netkan.cache.json");
+        let file_path = dir.join("netkan.cache.json");
 
         if !file_path.exists() {
             return false;
@@ -75,11 +79,11 @@ impl CacheClient {
     }
 
     pub fn is_frozen_cache_valid(&self) -> bool {
-        let dir = current_dir().unwrap().join("netkan");
-        let repo = Repository::open(dir).unwrap();
+        let dir = PathBuf::from_str(&self.dir).unwrap();
+        let repo = Repository::open(dir.clone()).unwrap();
         let commit = repo.revparse_single("HEAD").unwrap().id().to_string();
 
-        let file_path = current_dir().unwrap().join("frozen.cache.json");
+        let file_path = dir.join("frozen.cache.json");
 
         if !file_path.exists() {
             return false;
@@ -118,7 +122,7 @@ impl CacheClient {
         }
 
         // Retrieve the commit hash.
-        let dir = current_dir().unwrap().join("netkan");
+        let dir = PathBuf::from_str(&self.dir).unwrap();
         let repo = Repository::open(dir.clone()).unwrap();
         let commit = repo.revparse_single("HEAD").unwrap().id().to_string();
 
@@ -150,7 +154,7 @@ impl CacheClient {
 
         // Create the cache object.
         let cache_obj = CacheJSON::from_data(commit, items.clone());
-        let file_path = current_dir().unwrap().join("netkan.cache.json");
+        let file_path = dir.join("netkan.cache.json");
 
         // Write the cache object.
         write(file_path, serde_json::to_string(&cache_obj).unwrap()).unwrap();
@@ -167,7 +171,7 @@ impl CacheClient {
         }
 
         // Retrieve the commit hash.
-        let dir = current_dir().unwrap().join("netkan");
+        let dir = PathBuf::from_str(&self.dir).unwrap();
         let repo = Repository::open(dir.clone()).unwrap();
         let commit = repo.revparse_single("HEAD").unwrap().id().to_string();
 
@@ -208,7 +212,7 @@ impl CacheClient {
 
         // Create the cache object.
         let cache_obj = CacheJSON::from_data(commit, items.clone());
-        let file_path = current_dir().unwrap().join("frozen.cache.json");
+        let file_path = dir.join("frozen.cache.json");
 
         // Write the cache object.
         write(file_path, serde_json::to_string(&cache_obj).unwrap()).unwrap();

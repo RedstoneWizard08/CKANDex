@@ -22,6 +22,16 @@ pub use schemas::netkan::*;
 #[cfg(feature = "server")]
 pub use server::*;
 
-pub async fn refresh_data() {
-    clone_repo().await;
+pub enum KSP {
+    KSP1,
+    KSP2,
+}
+
+pub async fn refresh_data(game: KSP, dir: &str) {
+    let repo = match game {
+        KSP::KSP1 => KSP1_REPO_INFO,
+        KSP::KSP2 => KSP2_REPO_INFO,
+    };
+
+    clone_repo(repo, dir).await;
 }
