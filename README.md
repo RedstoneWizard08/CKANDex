@@ -1,6 +1,6 @@
 # CKANDex
 
-[[![crates.io](https://img.shields.io/crates/v/ckandex?style=flat-square)](https://crates.io/crates/ckandex)](https://crates.io/crates/ckandex)
+[![crates.io](https://img.shields.io/crates/v/ckandex?style=flat-square)](https://crates.io/crates/ckandex)
 
 A rust-powered [NetKAN](https://github.com/KSP-CKAN/NetKAN) resolver and indexer library, for both KSP 1 and KSP 2.
 
