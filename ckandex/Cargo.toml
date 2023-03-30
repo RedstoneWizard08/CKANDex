@@ -1,12 +1,13 @@
 [package]
 name = "ckandex"
-version = "0.6.0"
+version = "0.6.1"
 edition = "2021"
 license = "MIT"
 authors = ["RedstoneWizard08"]
 description = "An indexer and API for CKAN, written in Rust."
 readme = "../README.md"
 exclude = [".env"]
+repository = "https://github.com/RedstoneWizard08/CKANDex"
 
 [features]
 server = ["dep:axum"]
