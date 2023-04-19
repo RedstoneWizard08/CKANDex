@@ -15,6 +15,7 @@ pub struct Mod {
     pub kind: ModType,
     pub kref: String,
     pub download: Option<String>,
+    pub description: Option<String>,
 
     token: Option<String>,
 }
@@ -31,6 +32,7 @@ impl Mod {
             kref: netkan.kref.unwrap_or(String::new()),
             download: None,
             token: None,
+            description: netkan.short_description,
         };
     }
 
@@ -42,6 +44,7 @@ impl Mod {
             kref: frozen.kref.unwrap_or(String::new()),
             download: None,
             token: None,
+            description: frozen.short_description,
         };
     }
 
