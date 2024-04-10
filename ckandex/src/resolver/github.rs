@@ -12,7 +12,7 @@ pub struct GitHubResolver {
 #[async_trait]
 impl ModResolver for GitHubResolver {
     fn should_resolve(&self, kref: String) -> bool {
-        return kref.starts_with("#/ckan/github/");
+        kref.starts_with("#/ckan/github/")
     }
 
     async fn resolve_url(&self, kref: String, token: String) -> Result<String, CKANError> {

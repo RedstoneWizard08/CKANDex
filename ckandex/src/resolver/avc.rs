@@ -61,7 +61,7 @@ pub struct AVCSchema {
 #[async_trait]
 impl ModResolver for AVCResolver {
     fn should_resolve(&self, kref: String) -> bool {
-        return kref.starts_with("#/ckan/ksp-avc/");
+        kref.starts_with("#/ckan/ksp-avc/")
     }
 
     async fn resolve_url(&self, kref: String, _: String) -> Result<String, CKANError> {

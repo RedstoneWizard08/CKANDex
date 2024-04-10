@@ -11,7 +11,7 @@ pub struct DirectResolver {
 #[async_trait]
 impl ModResolver for DirectResolver {
     fn should_resolve(&self, kref: String) -> bool {
-        return kref.starts_with("#/ckan/http/");
+        kref.starts_with("#/ckan/http/")
     }
 
     async fn resolve_url(&self, kref: String, _: String) -> Result<String, CKANError> {

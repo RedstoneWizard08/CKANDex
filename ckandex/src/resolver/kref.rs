@@ -41,7 +41,7 @@ async fn end_resolve_kref(kref: String, token: String) -> Result<String, CKANErr
         return direct.resolve_url(kref, token).await;
     }
 
-    return Err(CKANError::UnresolvableKref);
+    Err(CKANError::UnresolvableKref)
 }
 
 pub async fn resolve_kref(kref: String, token: String) -> Result<String, CKANError> {
@@ -51,5 +51,20 @@ pub async fn resolve_kref(kref: String, token: String) -> Result<String, CKANErr
         return end_resolve_kref(netkan.resolve_url(kref, token.clone()).await?, token).await;
     }
 
-    return end_resolve_kref(kref.clone(), token).await;
+    end_resolve_kref(kref.clone(), token).await
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct KrefResolver {
+    pub token: String,
+}
+
+impl KrefResolver {
+    pub fn new(token: String) -> Self {
+        Self { token }
+    }
+
+    pub async fn resolve(&self, kref: String) -> Result<String, CKANError> {
+        resolve_kref(kref, self.token.clone()).await
+    }
 }

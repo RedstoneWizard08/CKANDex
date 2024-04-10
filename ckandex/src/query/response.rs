@@ -14,13 +14,13 @@ pub struct QueryResponse {
 impl QueryResponse {
     pub fn first(&self) -> Option<Mod> {
         if !self.netkans.is_empty() {
-            return self.netkans.get(0).cloned();
+            return self.netkans.first().cloned();
         }
 
         if !self.frozen.is_empty() {
-            return self.frozen.get(0).cloned();
+            return self.frozen.first().cloned();
         }
 
-        return None;
+        None
     }
 }

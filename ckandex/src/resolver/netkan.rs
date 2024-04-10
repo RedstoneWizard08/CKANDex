@@ -12,7 +12,7 @@ pub struct NetKANResolver {
 #[async_trait]
 impl ModResolver for NetKANResolver {
     fn should_resolve(&self, kref: String) -> bool {
-        return kref.starts_with("#/ckan/netkan/");
+        kref.starts_with("#/ckan/netkan/")
     }
 
     async fn resolve_url(&self, kref: String, _: String) -> Result<String, CKANError> {

@@ -11,13 +11,13 @@ pub struct NameFilter {
 
 impl IdFilter {
     pub fn new(filter: String) -> Self {
-        return Self { filter };
+        Self { filter }
     }
 }
 
 impl NameFilter {
     pub fn new(filter: String) -> Self {
-        return Self { filter };
+        Self { filter }
     }
 }
 
@@ -34,7 +34,7 @@ impl QueryFilter for IdFilter {
             }
         }
 
-        return post;
+        post
     }
 }
 
@@ -53,6 +53,6 @@ impl QueryFilter for NameFilter {
             }
         }
 
-        return post;
+        post
     }
 }

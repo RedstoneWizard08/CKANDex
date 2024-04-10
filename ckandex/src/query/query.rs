@@ -1,27 +1,25 @@
 use crate::{CacheClient, Mod, QueryFilterContainer, QueryResponse};
 
+#[derive(Default)]
 pub struct Query {
     pub filters: Vec<QueryFilterContainer>,
 }
 
-impl Default for Query {
-    fn default() -> Self {
-        return Self {
-            filters: Vec::new(),
-        };
-    }
-}
-
 impl Query {
     pub fn new() -> Self {
-        return Self {
+        Self {
             filters: Vec::new(),
-        };
+        }
     }
 
-    pub fn execute(&self, cache: CacheClient) -> QueryResponse {
-        let netkans = cache.netkans.unwrap();
-        let frozen = cache.frozen.unwrap();
+    pub fn filter(&mut self, filter: QueryFilterContainer) -> &mut Self {
+        self.filters.push(filter);
+        self
+    }
+
+    pub fn execute(&self, cache: &CacheClient) -> QueryResponse {
+        let netkans = cache.netkans.clone().unwrap();
+        let frozen = cache.frozen.clone().unwrap();
 
         let netkans = netkans
             .iter()
@@ -41,9 +39,9 @@ impl Query {
             res_frozen = filter.inner.filter(res_frozen);
         }
 
-        return QueryResponse {
+        QueryResponse {
             netkans: res_netkan,
             frozen: res_frozen,
-        };
+        }
     }
 }

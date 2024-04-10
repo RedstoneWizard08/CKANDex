@@ -14,7 +14,7 @@ pub struct GitLabResolver {
 #[async_trait]
 impl ModResolver for GitLabResolver {
     fn should_resolve(&self, kref: String) -> bool {
-        return kref.starts_with("#/ckan/gitlab/");
+        kref.starts_with("#/ckan/gitlab/")
     }
 
     async fn resolve_url(&self, kref: String, _: String) -> Result<String, CKANError> {
@@ -38,7 +38,7 @@ impl ModResolver for GitLabResolver {
         let data = serde_json::from_str::<Vec<GitLabRelease>>(&content).unwrap();
 
         let asset = data
-            .get(0)
+            .first()
             .unwrap()
             .assets
             .sources

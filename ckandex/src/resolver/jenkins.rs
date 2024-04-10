@@ -13,7 +13,7 @@ pub struct JenkinsResolver {
 #[async_trait]
 impl ModResolver for JenkinsResolver {
     fn should_resolve(&self, kref: String) -> bool {
-        return kref.starts_with("#/ckan/jenkins/");
+        kref.starts_with("#/ckan/jenkins/")
     }
 
     async fn resolve_url(&self, kref: String, _: String) -> Result<String, CKANError> {

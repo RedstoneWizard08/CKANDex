@@ -14,16 +14,17 @@ server = ["dep:axum"]
 default = []
 
 [dependencies]
-async-trait = "0.1.66"
-axum = { version = "0.6.10", features = ["macros", "ws", "http2"], optional = true }
-fancy-regex = "0.11.0"
-git2 = "0.16.1"
+async-trait = "0.1.79"
+axum = { version = "0.7.5", features = ["macros", "ws", "http2"], optional = true }
+fancy-regex = "0.13.0"
+git2 = "0.18.3"
 jenkins_api = "0.8.0"
-reqwest = { version = "0.11.14", features = ["json", "serde_json", "gzip"] }
-serde = { version = "1.0.154", features = ["derive"] }
+reqwest = { version = "0.12.2", features = ["json", "stream", "gzip"] }
+serde = { version = "1.0.197", features = ["derive"] }
 serde_either = "0.2.1"
-serde_json = "1.0.94"
-serde_yaml = "0.9.19"
+serde_json = "1.0.115"
+serde_yaml = "0.9.33"
+sha256 = "1.5.0"
 
 [package.metadata.docs.rs]
 all-features = true

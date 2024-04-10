@@ -1,6 +1,6 @@
 use git2::{Repository, ResetType};
 use serde::{Deserialize, Serialize};
-use std::{path::PathBuf, str::FromStr};
+use std::path::PathBuf;
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct RepoInfo {
@@ -18,9 +18,7 @@ pub static KSP2_REPO_INFO: RepoInfo = RepoInfo {
     branch: "main",
 };
 
-pub async fn update_repo(repo_info: RepoInfo, repo_dir: &str) {
-    let dir = PathBuf::from_str(repo_dir).unwrap();
-
+pub async fn update_repo(repo_info: RepoInfo, dir: PathBuf) {
     let repo = match Repository::open(dir) {
         Ok(repo) => repo,
         Err(e) => panic!("Failed to open: {}", e),
@@ -41,7 +39,9 @@ pub async fn update_repo(repo_info: RepoInfo, repo_dir: &str) {
 
     if analysis.0.is_up_to_date() {
         return;
-    } else if analysis.0.is_fast_forward() {
+    }
+    
+    if analysis.0.is_fast_forward() {
         let refname = format!("refs/heads/{}", repo_info.branch);
         let mut reference = repo.find_reference(&refname).unwrap();
 
@@ -57,11 +57,9 @@ pub async fn update_repo(repo_info: RepoInfo, repo_dir: &str) {
     }
 }
 
-pub async fn clone_repo(repo_info: RepoInfo, repo_dir: &str) {
-    let dir = PathBuf::from_str(repo_dir).unwrap();
-
+pub async fn clone_repo(repo_info: RepoInfo, dir: PathBuf) {
     if dir.clone().exists() {
-        update_repo(repo_info, repo_dir).await;
+        update_repo(repo_info, dir).await;
 
         return;
     }
@@ -70,6 +68,4 @@ pub async fn clone_repo(repo_info: RepoInfo, repo_dir: &str) {
         Ok(repo) => repo,
         Err(e) => panic!("Failed to clone: {}", e),
     };
-
-    return;
 }

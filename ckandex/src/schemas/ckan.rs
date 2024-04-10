@@ -25,27 +25,27 @@ unsafe impl Sync for Mod {}
 
 impl Mod {
     pub fn from_netkan(netkan: NetKANSchema) -> Self {
-        return Self {
+        Self {
             id: netkan.identifier.unwrap(),
-            name: netkan.name.unwrap_or(String::new()),
+            name: netkan.name.unwrap_or_default(),
             kind: ModType::NETKAN,
-            kref: netkan.kref.unwrap_or(String::new()),
+            kref: netkan.kref.unwrap_or_default(),
             download: None,
             token: None,
             description: netkan.short_description,
-        };
+        }
     }
 
     pub fn from_frozen(frozen: FrozenSchema) -> Self {
-        return Self {
+        Self {
             id: frozen.identifier.unwrap(),
-            name: frozen.name.unwrap_or(String::new()),
+            name: frozen.name.unwrap_or_default(),
             kind: ModType::FROZEN,
-            kref: frozen.kref.unwrap_or(String::new()),
+            kref: frozen.kref.unwrap_or_default(),
             download: None,
             token: None,
             description: frozen.short_description,
-        };
+        }
     }
 
     pub fn set_token(&mut self, token: String) {
@@ -65,6 +65,6 @@ impl Mod {
             return Ok(url);
         }
 
-        return Err(CKANError::UnresolvableKref);
+        Err(CKANError::UnresolvableKref)
     }
 }

@@ -23,7 +23,7 @@ pub struct SpaceDockSchema {
 #[async_trait]
 impl ModResolver for SpaceDockResolver {
     fn should_resolve(&self, kref: String) -> bool {
-        return kref.starts_with("#/ckan/spacedock/");
+        kref.starts_with("#/ckan/spacedock/")
     }
 
     async fn resolve_url(&self, kref: String, _: String) -> Result<String, CKANError> {

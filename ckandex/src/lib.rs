@@ -1,4 +1,4 @@
-#![allow(clippy::needless_return)]
+#![allow(clippy::module_inception)]
 
 pub mod cache;
 pub mod error;
@@ -9,6 +9,8 @@ pub mod schemas;
 
 #[cfg(feature = "server")]
 pub mod server;
+
+use std::path::PathBuf;
 
 pub use cache::*;
 pub use error::*;
@@ -27,11 +29,11 @@ pub enum KSP {
     KSP2,
 }
 
-pub async fn refresh_data(game: KSP, dir: &str) {
+pub async fn refresh_data(game: KSP, dir: impl Into<PathBuf>) {
     let repo = match game {
         KSP::KSP1 => KSP1_REPO_INFO,
         KSP::KSP2 => KSP2_REPO_INFO,
     };
 
-    clone_repo(repo, dir).await;
+    clone_repo(repo, dir.into()).await;
 }

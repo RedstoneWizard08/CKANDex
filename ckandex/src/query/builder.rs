@@ -1,22 +1,15 @@
 use crate::{Query, QueryFilter, QueryFilterContainer};
 
+#[derive(Default)]
 pub struct QueryBuilder {
     pub query: Query,
 }
 
-impl Default for QueryBuilder {
-    fn default() -> Self {
-        return Self {
-            query: Query::new(),
-        };
-    }
-}
-
 impl QueryBuilder {
     pub fn new() -> Self {
-        return Self {
+        Self {
             query: Query::new(),
-        };
+        }
     }
 
     pub fn add<F>(&mut self, filter: F) -> &mut Self
@@ -27,10 +20,10 @@ impl QueryBuilder {
             inner: Box::new(filter),
         });
 
-        return self;
+        self
     }
 
     pub fn build(&self) -> &Query {
-        return &self.query;
+        &self.query
     }
 }
