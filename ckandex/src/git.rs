@@ -40,7 +40,7 @@ pub async fn update_repo(repo_info: RepoInfo, dir: PathBuf) {
     if analysis.0.is_up_to_date() {
         return;
     }
-    
+
     if analysis.0.is_fast_forward() {
         let refname = format!("refs/heads/{}", repo_info.branch);
         let mut reference = repo.find_reference(&refname).unwrap();
