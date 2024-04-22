@@ -1,5 +1,6 @@
 use git2::Repository;
 use serde::{Deserialize, Serialize};
+use serde_yaml::Error;
 use sha256::digest;
 
 use std::{
@@ -124,7 +125,7 @@ impl CacheClient {
 
         // Get the NetKAN data dir (KSP1).
         let nk_dir = self.dir.join("ksp1").join("NetKAN");
-        let found = nk_dir.read_dir().unwrap();
+        let found = nk_dir.read_dir()?;
 
         // Filter files for NetKAN files (KSP1).
         let mut netkans: Vec<String> = found
@@ -135,7 +136,7 @@ impl CacheClient {
 
         // Get the NetKAN data dir (KSP2).
         let nk_dir = self.dir.join("ksp2").join("NetKAN");
-        let found = nk_dir.read_dir().unwrap();
+        let found = nk_dir.read_dir()?;
 
         // Filter files for NetKAN files (KSP2).
         netkans.extend(
@@ -151,14 +152,17 @@ impl CacheClient {
 
         // Parse and build the item list.
         for e in netkans {
-            let read = read_to_string(e).unwrap();
+            let read = read_to_string(e)?;
 
-            let json: NetKANSchema = match serde_json::from_str::<NetKANSchema>(&read) {
-                Ok(val) => val,
-                Err(_) => serde_yaml::from_str(&read).unwrap(),
-            };
+            let data: Result<NetKANSchema, Error> =
+                match serde_json::from_str::<NetKANSchema>(&read) {
+                    Ok(val) => Ok(val),
+                    Err(_) => serde_yaml::from_str(&read),
+                };
 
-            items.push(json);
+            if let Ok(data) = data {
+                items.push(data);
+            }
         }
 
         // Create the cache object.
@@ -166,7 +170,7 @@ impl CacheClient {
         let file_path = self.dir.join("netkan.cache.json");
 
         // Write the cache object.
-        write(file_path, serde_json::to_string(&cache_obj).unwrap()).unwrap();
+        write(file_path, serde_json::to_string(&cache_obj)?)?;
 
         self.netkans = Some(items);
 
@@ -184,7 +188,7 @@ impl CacheClient {
 
         // Get the NetKAN data dir.
         let nk_dir = self.dir.join("ksp1").join("NetKAN");
-        let found = nk_dir.read_dir().unwrap();
+        let found = nk_dir.read_dir()?;
 
         // Filter files for frozen files.
         let mut frozens: Vec<String> = found
@@ -195,7 +199,7 @@ impl CacheClient {
 
         // Get the NetKAN data dir (KSP2).
         let nk_dir = self.dir.join("ksp2").join("NetKAN");
-        let found = nk_dir.read_dir().unwrap();
+        let found = nk_dir.read_dir()?;
 
         // Filter files for NetKAN files (KSP2).
         frozens.extend(
@@ -211,23 +215,20 @@ impl CacheClient {
 
         // Parse and build the item list.
         for e in frozens {
-            let read = read_to_string(e).unwrap();
+            let read = read_to_string(e)?;
 
             if !read.contains(' ') {
                 continue;
             }
 
-            let json: FrozenSchema;
-
-            match serde_json::from_str::<FrozenSchema>(&read) {
-                Ok(val) => json = val,
-                Err(_) => match serde_yaml::from_str::<FrozenSchema>(&read) {
-                    Ok(v) => json = v,
-                    Err(_) => continue,
-                },
+            let data: Result<FrozenSchema, Error> = match serde_json::from_str(&read) {
+                Ok(val) => Ok(val),
+                Err(_) => serde_yaml::from_str(&read),
             };
 
-            items.push(json);
+            if let Ok(data) = data {
+                items.push(data);
+            }
         }
 
         // Create the cache object.
@@ -235,7 +236,7 @@ impl CacheClient {
         let file_path = self.dir.join("frozen.cache.json");
 
         // Write the cache object.
-        write(file_path, serde_json::to_string(&cache_obj).unwrap()).unwrap();
+        write(file_path, serde_json::to_string(&cache_obj)?)?;
 
         self.frozen = Some(items);
 
