@@ -39,6 +39,9 @@ pub struct CacheClient {
     pub dir: PathBuf,
 }
 
+unsafe impl Send for CacheClient {}
+unsafe impl Sync for CacheClient {}
+
 impl CacheClient {
     pub fn new(dir: impl Into<PathBuf>) -> Self {
         Self {
@@ -48,9 +51,11 @@ impl CacheClient {
         }
     }
 
-    pub async fn refresh(&self) {
-        clone_repo(KSP1_REPO_INFO, self.dir.join("ksp1")).await;
-        clone_repo(KSP2_REPO_INFO, self.dir.join("ksp2")).await;
+    pub async fn refresh(&self) -> Result<(), CKANError> {
+        clone_repo(KSP1_REPO_INFO, self.dir.join("ksp1")).await?;
+        clone_repo(KSP2_REPO_INFO, self.dir.join("ksp2")).await?;
+
+        Ok(())
     }
 
     pub fn is_netkan_cache_valid(&self) -> bool {

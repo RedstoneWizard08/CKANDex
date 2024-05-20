@@ -29,11 +29,13 @@ pub enum KSP {
     KSP2,
 }
 
-pub async fn refresh_data(game: KSP, dir: impl Into<PathBuf>) {
+pub async fn refresh_data(game: KSP, dir: impl Into<PathBuf>) -> Result<(), CKANError> {
     let repo = match game {
         KSP::KSP1 => KSP1_REPO_INFO,
         KSP::KSP2 => KSP2_REPO_INFO,
     };
 
-    clone_repo(repo, dir.into()).await;
+    clone_repo(repo, dir.into()).await?;
+
+    Ok(())
 }

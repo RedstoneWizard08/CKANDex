@@ -1,14 +1,11 @@
-use std::env;
+use std::{env, net::{IpAddr, SocketAddr}};
 
 use axum::{
-    debug_handler,
-    extract::{Path, Query, State},
-    response::Response,
-    routing::get,
-    Router, Server,
+    debug_handler, extract::{Path, Query, State}, response::Response, routing::get, serve, Router
 };
 use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
+use tokio::net::TcpListener;
 
 use crate::{kref::resolve_kref, CacheClient, IdFilter, NameFilter, QueryBuilder};
 
@@ -38,7 +35,7 @@ pub async fn query(
     }
 
     let query = query.build();
-    let resp = query.execute(cache);
+    let resp = query.execute(&cache);
 
     return serde_json::to_string(&resp).unwrap();
 }
@@ -52,7 +49,7 @@ pub async fn get_kref(
     let mut query = QueryBuilder::new();
     let query = query.add(IdFilter::new(mod_id)).build();
 
-    let mods = query.execute(cache);
+    let mods = query.execute(&cache);
     let item = mods.first();
 
     if let Some(item) = item {
@@ -79,7 +76,7 @@ pub async fn get_kref_env(
     let mut query = QueryBuilder::new();
     let query = query.add(IdFilter::new(mod_id)).build();
 
-    let mods = query.execute(cache);
+    let mods = query.execute(&cache);
     let item = mods.first();
 
     let token = env::var("GITHUB_TOKEN").unwrap();
@@ -107,20 +104,19 @@ pub async fn run_server(dir: String) {
 
     let router = Router::new();
 
-    let app = Server::bind(&"0.0.0.0:4000".parse().unwrap());
+    let addr = SocketAddr::from(("0.0.0.0".parse::<IpAddr>().unwrap(), 4000));
+    let listener = TcpListener::bind(&addr).await.unwrap();
 
     if env::var("GITHUB_TOKEN").is_ok() {
         let router = router
             .route("/", get(index))
             .route("/mods", get(query))
             .route("/download/:mod_id", get(get_kref_env))
-            .with_state(cache);
-
-        let server = app.serve(router.into_make_service());
+            .with_state(cache).into_make_service_with_connect_info::<SocketAddr>();
 
         println!("Serving on 0.0.0.0:4000!");
 
-        server.await.unwrap();
+        serve(listener, router).await.unwrap();
     } else {
         let router = router
             .route("/", get(index))
@@ -128,10 +124,8 @@ pub async fn run_server(dir: String) {
             .route("/download/:mod_id", get(get_kref))
             .with_state(cache);
 
-        let server = app.serve(router.into_make_service());
-
         println!("Serving on 0.0.0.0:4000!");
 
-        server.await.unwrap();
+        serve(listener, router).await.unwrap();
     }
 }

@@ -7,10 +7,12 @@ pub enum CKANError {
     NoAsset,
     UnknownArtifact,
     InvalidCommit,
+    FastForwardOnly,
 
     Io(std::io::Error),
     Json(serde_json::Error),
     Yaml(serde_yaml::Error),
+    Git(git2::Error),
 }
 
 impl From<std::io::Error> for CKANError {
@@ -28,5 +30,11 @@ impl From<serde_json::Error> for CKANError {
 impl From<serde_yaml::Error> for CKANError {
     fn from(value: serde_yaml::Error) -> Self {
         Self::Yaml(value)
+    }
+}
+
+impl From<git2::Error> for CKANError {
+    fn from(value: git2::Error) -> Self {
+        Self::Git(value)
     }
 }

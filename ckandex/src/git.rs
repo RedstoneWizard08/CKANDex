@@ -2,6 +2,8 @@ use git2::{Repository, ResetType};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
+use crate::CKANError;
+
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct RepoInfo {
     pub url: &'static str,
@@ -18,54 +20,45 @@ pub static KSP2_REPO_INFO: RepoInfo = RepoInfo {
     branch: "main",
 };
 
-pub async fn update_repo(repo_info: RepoInfo, dir: PathBuf) {
-    let repo = match Repository::open(dir) {
-        Ok(repo) => repo,
-        Err(e) => panic!("Failed to open: {}", e),
-    };
+pub async fn update_repo(repo_info: RepoInfo, dir: PathBuf) -> Result<(), CKANError> {
+    let repo = Repository::open(dir)?;
+    let commit = repo.revparse_single("HEAD")?;
 
-    let commit = repo.revparse_single("HEAD").unwrap();
+    repo.reset(&commit, ResetType::Hard, None)?;
 
-    repo.reset(&commit, ResetType::Hard, None).unwrap();
+    repo.find_remote("origin")?
+        .fetch(&[repo_info.branch], None, None)?;
 
-    repo.find_remote("origin")
-        .unwrap()
-        .fetch(&[repo_info.branch], None, None)
-        .unwrap();
-
-    let fetch_head = repo.find_reference("FETCH_HEAD").unwrap();
-    let fetch_commit = repo.reference_to_annotated_commit(&fetch_head).unwrap();
-    let analysis = repo.merge_analysis(&[&fetch_commit]).unwrap();
+    let fetch_head = repo.find_reference("FETCH_HEAD")?;
+    let fetch_commit = repo.reference_to_annotated_commit(&fetch_head)?;
+    let analysis = repo.merge_analysis(&[&fetch_commit])?;
 
     if analysis.0.is_up_to_date() {
-        return;
+        return Ok(());
     }
 
     if analysis.0.is_fast_forward() {
         let refname = format!("refs/heads/{}", repo_info.branch);
-        let mut reference = repo.find_reference(&refname).unwrap();
+        let mut reference = repo.find_reference(&refname)?;
 
-        reference
-            .set_target(fetch_commit.id(), "Fast-Forward")
-            .unwrap();
+        reference.set_target(fetch_commit.id(), "Fast-Forward")?;
+        repo.set_head(&refname)?;
+        repo.checkout_head(Some(git2::build::CheckoutBuilder::default().force()))?;
 
-        repo.set_head(&refname).unwrap();
-        repo.checkout_head(Some(git2::build::CheckoutBuilder::default().force()))
-            .unwrap();
+        Ok(())
     } else {
-        panic!("Fast-forward only!");
+        Err(CKANError::FastForwardOnly)
     }
 }
 
-pub async fn clone_repo(repo_info: RepoInfo, dir: PathBuf) {
+pub async fn clone_repo(repo_info: RepoInfo, dir: PathBuf) -> Result<(), CKANError> {
     if dir.clone().exists() {
-        update_repo(repo_info, dir).await;
+        update_repo(repo_info, dir).await?;
 
-        return;
+        return Ok(());
     }
 
-    match Repository::clone_recurse(repo_info.url, dir) {
-        Ok(repo) => repo,
-        Err(e) => panic!("Failed to clone: {}", e),
-    };
+    Repository::clone_recurse(repo_info.url, dir)?;
+
+    Ok(())
 }
