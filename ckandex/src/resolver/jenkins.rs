@@ -1,4 +1,3 @@
-use async_trait::async_trait;
 use jenkins_api::JenkinsBuilder;
 
 use crate::CKANError;

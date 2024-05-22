@@ -1,7 +1,6 @@
 use crate::CKANError;
 
 use super::common::{ModResolver, ModSourceLists};
-use async_trait::async_trait;
 use fancy_regex::Regex;
 use serde::{Deserialize, Serialize};
 

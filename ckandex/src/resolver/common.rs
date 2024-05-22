@@ -1,7 +1,5 @@
 use std::collections::HashMap;
 
-use async_trait::async_trait;
-
 use crate::CKANError;
 
 #[async_trait]

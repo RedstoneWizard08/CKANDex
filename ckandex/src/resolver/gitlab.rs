@@ -2,7 +2,6 @@ use crate::{
     schemas::gitlab::{project::GitLabProject, release::GitLabRelease},
     CKANError,
 };
-use async_trait::async_trait;
 
 use super::common::{ModResolver, ModSourceLists};
 

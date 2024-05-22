@@ -1,5 +1,4 @@
 use crate::{schemas::github::release::GitHubReleaseSchema, CKANError};
-use async_trait::async_trait;
 use reqwest::header;
 
 use super::common::{ModResolver, ModSourceLists};

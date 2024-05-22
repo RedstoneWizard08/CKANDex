@@ -1,7 +1,14 @@
-use std::{env, net::{IpAddr, SocketAddr}};
+use std::{
+    env,
+    net::{IpAddr, SocketAddr},
+};
 
 use axum::{
-    debug_handler, extract::{Path, Query, State}, response::Response, routing::get, serve, Router
+    debug_handler,
+    extract::{Path, Query, State},
+    response::Response,
+    routing::get,
+    serve, Router,
 };
 use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
@@ -112,7 +119,8 @@ pub async fn run_server(dir: String) {
             .route("/", get(index))
             .route("/mods", get(query))
             .route("/download/:mod_id", get(get_kref_env))
-            .with_state(cache).into_make_service_with_connect_info::<SocketAddr>();
+            .with_state(cache)
+            .into_make_service_with_connect_info::<SocketAddr>();
 
         println!("Serving on 0.0.0.0:4000!");
 

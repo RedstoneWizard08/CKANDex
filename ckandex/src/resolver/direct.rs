@@ -1,5 +1,4 @@
 use crate::CKANError;
-use async_trait::async_trait;
 
 use super::common::{ModResolver, ModSourceLists};
 

@@ -1,7 +1,6 @@
 use crate::CKANError;
 
 use super::common::{ModResolver, ModSourceLists};
-use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 
 #[derive(Default, Debug, Clone)]

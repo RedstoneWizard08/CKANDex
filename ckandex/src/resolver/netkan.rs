@@ -1,5 +1,3 @@
-use async_trait::async_trait;
-
 use crate::{CKANError, NetKANSchema};
 
 use super::common::{ModResolver, ModSourceLists};

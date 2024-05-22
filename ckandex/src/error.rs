@@ -1,40 +1,40 @@
-#[derive(Debug)]
+use thiserror::Error;
+
+#[derive(Debug, Error)]
 pub enum CKANError {
+    #[error("CKAN cache not found!")]
     CacheNotFound,
+
+    #[error("Unresolvable KREF!")]
     UnresolvableKref,
+
+    #[error("Unknown mod!")]
     UnknownMod,
+
+    #[error("Unknown NetKAN descriptor format!")]
     UnknownDescriptorFormat,
+
+    #[error("Could not find an asset!")]
     NoAsset,
+
+    #[error("Could not find an artifact!")]
     UnknownArtifact,
+
+    #[error("An invalid commit was found!")]
     InvalidCommit,
+
+    #[error("Fast-forward changes only!")]
     FastForwardOnly,
 
-    Io(std::io::Error),
-    Json(serde_json::Error),
-    Yaml(serde_yaml::Error),
-    Git(git2::Error),
-}
+    #[error("An error occured")]
+    Io(#[from] std::io::Error),
 
-impl From<std::io::Error> for CKANError {
-    fn from(value: std::io::Error) -> Self {
-        Self::Io(value)
-    }
-}
+    #[error("An error occured")]
+    Json(#[from] serde_json::Error),
 
-impl From<serde_json::Error> for CKANError {
-    fn from(value: serde_json::Error) -> Self {
-        Self::Json(value)
-    }
-}
+    #[error("An error occured")]
+    Yaml(#[from] serde_yaml::Error),
 
-impl From<serde_yaml::Error> for CKANError {
-    fn from(value: serde_yaml::Error) -> Self {
-        Self::Yaml(value)
-    }
-}
-
-impl From<git2::Error> for CKANError {
-    fn from(value: git2::Error) -> Self {
-        Self::Git(value)
-    }
+    #[error("An error occured")]
+    Git(#[from] git2::Error),
 }

@@ -1,5 +1,8 @@
 #![allow(clippy::module_inception)]
 
+#[macro_use]
+extern crate async_trait;
+
 pub mod cache;
 pub mod error;
 pub mod git;
