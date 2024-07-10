@@ -1,6 +1,6 @@
 use git2::Repository;
 use serde::{Deserialize, Serialize};
-use serde_yaml::Error;
+use serde_yml::Error;
 use sha256::digest;
 
 use std::{
@@ -162,7 +162,7 @@ impl CacheClient {
             let data: Result<NetKANSchema, Error> =
                 match serde_json::from_str::<NetKANSchema>(&read) {
                     Ok(val) => Ok(val),
-                    Err(_) => serde_yaml::from_str(&read),
+                    Err(_) => serde_yml::from_str(&read),
                 };
 
             if let Ok(data) = data {
@@ -228,7 +228,7 @@ impl CacheClient {
 
             let data: Result<FrozenSchema, Error> = match serde_json::from_str(&read) {
                 Ok(val) => Ok(val),
-                Err(_) => serde_yaml::from_str(&read),
+                Err(_) => serde_yml::from_str(&read),
             };
 
             if let Ok(data) = data {

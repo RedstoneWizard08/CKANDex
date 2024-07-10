@@ -22,7 +22,7 @@ impl ModResolver for NetKANResolver {
 
         if let Ok(json) = serde_json::from_str(&content) {
             data = json;
-        } else if let Ok(yaml) = serde_yaml::from_str(&content) {
+        } else if let Ok(yaml) = serde_yml::from_str(&content) {
             data = yaml;
         } else {
             return Err(CKANError::UnknownDescriptorFormat);

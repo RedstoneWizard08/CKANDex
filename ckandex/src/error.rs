@@ -33,7 +33,7 @@ pub enum CKANError {
     Json(#[from] serde_json::Error),
 
     #[error("An error occured")]
-    Yaml(#[from] serde_yaml::Error),
+    Yaml(#[from] serde_yml::Error),
 
     #[error("An error occured")]
     Git(#[from] git2::Error),

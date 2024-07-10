@@ -21,33 +21,9 @@ This library was created for the [Wormhole](https://github.com/RedstoneWizard08/
 
 ## Example
 
-Here's an example of CKANDex in action:
-
-```rs
-use ckandex::{refresh_data, run_server, KSP};
-use dotenv::dotenv;
-use tokio::main;
-
-#[main]
-pub async fn main() {
-    dotenv().ok();
-
-    refresh_data(KSP::KSP2, "netkan-ksp2").await;
-    run_server("netkan-ksp2".to_string()).await;
-}
-```
-
-For more examples, check out the [example/](example/) folder in this repo.
+For some examples, check out the [examples/](examples/) folder in this repo.
 
 ## Contributing
 
 This library is still WIP! Please don't be afraid to make feature requests, pull requests, and anything else. If you have any questions, or you have found any bugs, please create an issue! I'll be happy to help as soon as I can.
 
-## Code Style
-
-The code style is as follows:
-
-- 4-space tab (spaces, not tabs)
-- Brackets on same lines as declarations (`pub async fn main() {` not `pub async fn main()\n{`)
-- Declared return (`return ...;` not `...`) [Shut up, clippy. I prefer this.]
-- Look at the rest of the codebase for more.
