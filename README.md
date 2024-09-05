@@ -10,14 +10,14 @@ This library was created for the [Wormhole](https://github.com/RedstoneWizard08/
 
 ## Features
 
-- Blazingly fast (I know) query and filter system.
-- Low overhead.
-- Memory-efficient (somewhat).
-- Well caching.
-- Always up to date.
-- Easy-to-use API.
-- Made with Tokio and Serde.
-- Easy to integrate into existing codebases.
+-   Blazingly fast (I know) query and filter system.
+-   Low overhead.
+-   Memory-efficient (somewhat).
+-   Well caching.
+-   Always up to date.
+-   Easy-to-use API.
+-   Made with Tokio and Serde.
+-   Easy to integrate into existing codebases.
 
 ## Example
 
@@ -26,4 +26,3 @@ For some examples, check out the [examples/](examples/) folder in this repo.
 ## Contributing
 
 This library is still WIP! Please don't be afraid to make feature requests, pull requests, and anything else. If you have any questions, or you have found any bugs, please create an issue! I'll be happy to help as soon as I can.
-
